@@ -3,13 +3,15 @@
 You can compile a keymap already in the repo or using a QMK Configurator export.
 A bootloader must be specified.
 """
-from argcomplete.completers import FilesCompleter
+from subprocess import DEVNULL
+import sys
 
+from argcomplete.completers import FilesCompleter
 from milc import cli
 
 import qmk.path
 from qmk.decorators import automagic_keyboard, automagic_keymap
-from qmk.commands import compile_configurator_json, create_make_command, parse_configurator_json, build_environment
+from qmk.commands import compile_configurator_json, create_make_command, parse_configurator_json
 from qmk.keyboard import keyboard_completer, keyboard_folder
 from qmk.flashers import flasher
 
@@ -73,40 +75,59 @@ def flash(cli):
                 return False
         except KeyboardInterrupt:
             cli.log.info('Ctrl-C was pressed, exiting...')
-        return True
+            sys.exit(0)
 
-    if cli.args.bootloaders:
-        # Provide usage and list bootloaders
-        cli.print_help()
-        print_bootloader_help()
-        return False
+    else:
+        if cli.args.clean and not cli.args.filename and not cli.args.dry_run:
+            if cli.config.flash.keyboard and cli.config.flash.keymap:
+                command = create_make_command(cli.config.flash.keyboard, cli.config.flash.keymap, 'clean')
+                cli.run(command, capture_output=False, stdin=DEVNULL)
 
-    # Build the environment vars
-    envs = build_environment(cli.args.env)
+        # Build the environment vars
+        envs = {}
+        for env in cli.args.env:
+            if '=' in env:
+                key, value = env.split('=', 1)
+                envs[key] = value
+            else:
+                cli.log.warning('Invalid environment variable: %s', env)
 
-    # Determine the compile command
-    commands = []
+        # Determine the compile command
+        command = ''
 
-    if cli.args.filename:
-        # If a configurator JSON was provided generate a keymap and compile it
-        user_keymap = parse_configurator_json(cli.args.filename)
-        commands = [compile_configurator_json(user_keymap, cli.args.bootloader, parallel=cli.config.flash.parallel, clean=cli.args.clean, **envs)]
+        if cli.args.bootloaders:
+            # Provide usage and list bootloaders
+            cli.echo('usage: qmk flash [-h] [-b] [-n] [-kb KEYBOARD] [-km KEYMAP] [-bl BOOTLOADER] [filename]')
+            print_bootloader_help()
+            return False
 
-    elif cli.config.flash.keyboard and cli.config.flash.keymap:
-        # Generate the make command for a specific keyboard/keymap.
-        if cli.args.clean:
-            commands.append(create_make_command(cli.config.flash.keyboard, cli.config.flash.keymap, 'clean', **envs))
-        commands.append(create_make_command(cli.config.flash.keyboard, cli.config.flash.keymap, cli.args.bootloader, parallel=cli.config.flash.parallel, **envs))
+        if cli.args.filename:
+            # Handle compiling a configurator JSON
+            user_keymap = parse_configurator_json(cli.args.filename)
+            keymap_path = qmk.path.keymap(user_keymap['keyboard'])
+            command = compile_configurator_json(user_keymap, cli.args.bootloader, parallel=cli.config.flash.parallel, **envs)
 
-    if not commands:
-        cli.log.error('You must supply a configurator export, both `--keyboard` and `--keymap`, or be in a directory for a keyboard or keymap.')
-        cli.print_help()
-        return False
+            cli.log.info('Wrote keymap to {fg_cyan}%s/%s/keymap.c', keymap_path, user_keymap['keymap'])
 
-    cli.log.info('Compiling keymap with {fg_cyan}%s', ' '.join(commands[-1]))
-    if not cli.args.dry_run:
-        cli.echo('\n')
-        for command in commands:
-            ret = cli.run(command, capture_output=False)
-            if ret.returncode:
-                return ret.returncode
+        else:
+            if cli.config.flash.keyboard and cli.config.flash.keymap:
+                # Generate the make command for a specific keyboard/keymap.
+                command = create_make_command(cli.config.flash.keyboard, cli.config.flash.keymap, cli.args.bootloader, parallel=cli.config.flash.parallel, **envs)
+
+            elif not cli.config.flash.keyboard:
+                cli.log.error('Could not determine keyboard!')
+            elif not cli.config.flash.keymap:
+                cli.log.error('Could not determine keymap!')
+
+        # Compile the firmware, if we're able to
+        if command:
+            cli.log.info('Compiling keymap with {fg_cyan}%s', ' '.join(command))
+            if not cli.args.dry_run:
+                cli.echo('\n')
+                compile = cli.run(command, capture_output=False, stdin=DEVNULL)
+                return compile.returncode
+
+        else:
+            cli.log.error('You must supply a configurator export, both `--keyboard` and `--keymap`, or be in a directory for a keyboard or keymap.')
+            cli.echo('usage: qmk flash [-h] [-b] [-n] [-kb KEYBOARD] [-km KEYMAP] [-bl BOOTLOADER] [filename]')
+            return False
