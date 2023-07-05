@@ -1,6 +1,6 @@
 {
     "manufacturer": "yushakobo",
-    "keyboard_name": "ergoda",
+    "keyboard_name": "ergo68",
     "maintainer": "yushakobo",
     "bootloader": "caterina",
     "diode_direction": "COL2ROW",
@@ -21,8 +21,8 @@
     "processor": "atmega32u4",
     "url": "",
     "usb": {
-        "vid": "0x04D8",
-        "pid": "0xE6DD",
+        "vid": "0x3265",
+        "pid": "0x0011",
         "device_version": "1.0.0"
     },
     "rgblight": {
