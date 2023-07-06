@@ -46,3 +46,42 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
         KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS
     )
 };
+
+void rgb_matrix_indicators_advanced_user(uint8_t led_min, uint8_t led_max) {
+    // caps lock cyan
+    if (host_keyboard_led_state().caps_lock) {
+        RGB_MATRIX_INDICATOR_SET_COLOR(0, 0, 0, 128);
+    } else {
+        RGB_MATRIX_INDICATOR_SET_COLOR(0, 0, 0, 0);
+    }
+
+    // num lock cyan
+    if (host_keyboard_led_state().num_lock) {
+        RGB_MATRIX_INDICATOR_SET_COLOR(1, 0, 0, 128);
+    } else {
+        RGB_MATRIX_INDICATOR_SET_COLOR(1, 0, 0, 0);
+    }
+
+    // scroll lock cyan
+    if (host_keyboard_led_state().scroll_lock) {
+        RGB_MATRIX_INDICATOR_SET_COLOR(2, 0, 0, 128);
+    } else {
+        RGB_MATRIX_INDICATOR_SET_COLOR(2, 0, 0, 0);
+    }
+
+    // layer state
+    switch (get_highest_layer(layer_state)) {
+        case 1:
+            RGB_MATRIX_INDICATOR_SET_COLOR(37, 0, 0, 128);
+            break;
+        case 2:
+            RGB_MATRIX_INDICATOR_SET_COLOR(38, 0, 0, 128);
+            break;
+        case 3:
+            RGB_MATRIX_INDICATOR_SET_COLOR(39, 0, 0, 128);
+            break;
+        default:
+            RGB_MATRIX_INDICATOR_SET_COLOR(0, 0, 0, 0);
+            break;
+    }
+}

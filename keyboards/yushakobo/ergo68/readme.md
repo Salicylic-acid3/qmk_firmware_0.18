@@ -1,22 +1,16 @@
-# guide68
+# ergo68
 
-![guide68](https://i.imgur.com/u1HeHb9h.jpg)
+![ergo68](https://i.imgur.com/u1HeHb9h.jpg)
 
-This is 68 keys Row-staggered Split keyboard.
+This is 68 keys Column-staggered Split keyboard.
 
-* Keyboard Maintainer: [Salicylic-acid3](https://github.com/Salicylic-acid3)
-* Hardware Supported: guide68 PCB, Pro Micro
-* Hardware Availability: [PCB & Case Data](https://github.com/Salicylic-acid3/PCB_Data)
+* Keyboard Maintainer: [yushakobo](https://github.com/yushakobo)
+* Hardware Supported: ergo68 PCB, Pro Micro
+* Hardware Availability: [yushakobo shop](https://shop.yushakobo.jp/products/5384)
 
 Make example for this keyboard (after setting up your build environment):
 
-    make salicylic_acid3/guide68:default
-
-Flashing example for this keyboard:
-
-    make salicylic_acid3/guide68:default:flash
-
-See the [build environment setup](https://docs.qmk.fm/#/getting_started_build_tools) and the [make instructions](https://docs.qmk.fm/#/getting_started_make_guide) for more information. Brand new to QMK? Start with our [Complete Newbs Guide](https://docs.qmk.fm/#/newbs).
+    make yushakobo/ergo68:default
 
 ## Bootloader
 
@@ -25,3 +19,5 @@ Enter the bootloader in 3 ways:
 * **Bootmagic reset**: Hold down the key at (0,0) in the matrix (usually the top left key or Escape) and plug in the keyboard
 * **Physical reset button**: Briefly press the button on the back of the PCB - some may have pads you must short instead
 * **Keycode in layout**: Press the key mapped to `QK_BOOT` if it is available
+
+See the [build environment setup](https://docs.qmk.fm/#/getting_started_build_tools) and the [make instructions](https://docs.qmk.fm/#/getting_started_make_guide) for more information. Brand new to QMK? Start with our [Complete Newbs Guide](https://docs.qmk.fm/#/newbs).
