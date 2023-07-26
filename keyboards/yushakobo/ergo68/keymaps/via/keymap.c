@@ -80,8 +80,5 @@ void rgb_matrix_indicators_advanced_user(uint8_t led_min, uint8_t led_max) {
         case 3:
             RGB_MATRIX_INDICATOR_SET_COLOR(39, 0, 0, 128);
             break;
-        default:
-            RGB_MATRIX_INDICATOR_SET_COLOR(0, 0, 0, 0);
-            break;
     }
 }
